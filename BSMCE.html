@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Big Solo Micro-Credit Ent. Loan Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .container {
+            display: flex;
+            border: 1px solid #ddd;
+        }
+        .loan-details, .customer-info {
+            flex: 1;
+            padding: 10px;
+        }
+        .loan-details div, .customer-info div {
+            margin-bottom: 5px;
+        }
+        .label {
+            font-weight: bold;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: right;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        input {
+            width: 100%;
+            padding: 5px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        @media print {
+            button {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">Big Solo Micro-Credit Ent. Tel: 0249439293</div>
+    <div class="container">
+        <div class="loan-details">
+            <div><span class="label">Loan amount:</span> <input type="number" id="principal" value="5700"></div>
+            <div><span class="label">Annual interest rate:</span> <input type="number" id="interest" value="12.50"></div>
+            <div><span class="label">Loan period in months:</span> <input type="number" id="duration" value="12"></div>
+            <div><span class="label">Start date of loan:</span> <input type="date" id="startDate" value="2024-07-28"></div>
+            <div><span class="label">Monthly interest rate:</span> <span id="monthlyRate"></span></div>
+            <div><span class="label">Monthly payment:</span> <span id="monthlyPayment"></span></div>
+            <div><span class="label">Number of payments:</span> <span id="numPayments"></span></div>
+            <div><span class="label">Total interest:</span> <span id="totalInterest"></span></div>
+            <div><span class="label">Total cost of loan:</span> <span id="totalCost"></span></div>
+            <button onclick="calculateLoan()">Calculate</button>
+            <button onclick="printLoanDetails()">Print</button>
+        </div>
+        <div class="customer-info">
+            <div><span class="label">NAME:</span> <input type="text" id="customerName" value="AYITTEY MARTIN"></div>
+            <div><span class="label">CONTACT:</span> <input type="text" id="customerContact"></div>
+            <div><span class="label">LOCATION:</span> <input type="text" id="customerLocation"></div>
+            <div><span class="label">OTHER INFO:</span> <input type="text" id="otherInfo" value="TOPUP 3000 B/F=2700 5700"></div>
+            <div style="text-align: right; color: red; font-weight: bold;">SIGNED</div>
+        </div>
+    </div>
+    <div id="result"></div>
+
+    <script>
+        function calculateLoan() {
+            const principal = parseFloat(document.getElementById('principal').value);
+            const annualRate = parseFloat(document.getElementById('interest').value) / 100;
+            const duration = parseInt(document.getElementById('duration').value);
+            const startDate = new Date(document.getElementById('startDate').value);
+            const monthlyRate = annualRate / 12;
+
+            const monthlyPayment = principal * (monthlyRate * Math.pow(1 + monthlyRate, duration)) / (Math.pow(1 + monthlyRate, duration) - 1);
+            const totalInterest = (monthlyPayment * duration) - principal;
+            const totalCost = principal + totalInterest;
+
+            document.getElementById('monthlyRate').textContent = (monthlyRate * 100).toFixed(2) + '%';
+            document.getElementById('monthlyPayment').textContent = '₵ ' + monthlyPayment.toFixed(2);
+            document.getElementById('numPayments').textContent = duration;
+            document.getElementById('totalInterest').textContent = '₵ ' + totalInterest.toFixed(2);
+            document.getElementById('totalCost').textContent = '₵ ' + totalCost.toFixed(2);
+
+            let balance = principal;
+            let table = '<table><tr><th>No</th><th>Payment Date</th><th>Beginning Balance</th><th>M/Payment</th><th>Principal</th><th>Interest</th><th>Ending Balance</th></tr>';
+
+            for (let i = 1; i <= duration; i++) {
+                const interest = balance * monthlyRate;
+                const principalPart = monthlyPayment - interest;
+                const endingBalance = balance - principalPart;
+
+                startDate.setMonth(startDate.getMonth() + 1);
+                const dateString = startDate.toLocaleDateString('en-GB');
+
+                table += `<tr>
+                    <td>${i}</td>
+                    <td>${dateString}</td>
+                    <td>GH₵ ${balance.toFixed(2)}</td>
+                    <td>GH₵ ${monthlyPayment.toFixed(2)}</td>
+                    <td>GH₵ ${principalPart.toFixed(2)}</td>
+                    <td>GH₵ ${interest.toFixed(2)}</td>
+                    <td>GH₵ ${endingBalance.toFixed(2)}</td>
+                </tr>`;
+
+                balance = endingBalance;
+            }
+
+            table += '</table>';
+            document.getElementById('result').innerHTML = table;
+        }
+
+        function printLoanDetails() {
+            window.print();
+        }
+
+        // Initial calculation on page load
+        calculateLoan();
+    </script>
+</body>
+</html>
